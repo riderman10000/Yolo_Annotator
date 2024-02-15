@@ -18,10 +18,15 @@ def convert(size, box):
     y = y*dh
     h = h*dh
     return (x,y,w,h)
-    
 
-def Convert2Yolo(mypath, outpath, project, classes):
+def search_img(search_string, dir_path):
+    files = os.listdir(dir_path)
+    matching_files = [file for file in files if search_string in file]
+    return matching_files[0]
+
+def Convert2Yolo(mypath, outpath, project, classes, imageDir):
     wd = getcwd()
+    print(f'===={wd}====')
     list_file = open('%s/log/%s_list.txt'%(wd, project), 'w')
     
     """ Get input text file list """
@@ -51,9 +56,6 @@ def Convert2Yolo(mypath, outpath, project, classes):
         """ Convert the data to YOLO format """
         ct = 0
         for line in lines:
-            #print('lenth of line is: ')
-            #print(len(line))
-            #print('\n')
             elems = line.split(' ')
             if(len(elems) >= 2):
             #if(len(line) >= 2):
@@ -70,16 +72,15 @@ def Convert2Yolo(mypath, outpath, project, classes):
                     exit(0)
                 cls_id = classes.index(cls)
                 print(elems[0])
-
-                img_path = str('%s/Images/%s/%s'%(wd, project, os.path.splitext(txt_name)[0])+'.jpg')
+                print('Text name : ', txt_name)
+                # img_path = str('%s/Images/%s/%s'%(wd, project, os.path.splitext(txt_name)[0])+'.jpg')
+                img_path = os.path.join (imageDir, search_img(os.path.splitext(txt_name)[0],imageDir))
+                print('Image path:  ',img_path)
                 #t = magic.from_file(img_path)
                 #wh= re.search('(\d+) x (\d+)', t).groups()
                 im=Image.open(img_path)
                 w= int(im.size[0])
                 h= int(im.size[1])
-                #w = int(xmax) - int(xmin)
-                #h = int(ymax) - int(ymin)
-                # print(xmin)
                 print(w, h)
                 print(float(xmin), float(xmax), float(ymin), float(ymax))
                 b = (float(xmin), float(xmax), float(ymin), float(ymax))
