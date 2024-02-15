@@ -18,7 +18,7 @@ COLORS = ['red', 'blue', 'olive', 'teal', 'cyan', 'green', 'black', 'purple', 'o
 SIZE = 256, 256
 
 class LabelTool():
-    def __init__(self, master):
+    def __init__(self, master, dir_imgs, dir_out, dir_yolo_out):
         # set up the main frame
         self.parent = master
         self.parent.title("Yolo Annotator")
@@ -32,11 +32,12 @@ class LabelTool():
         self.index = 0
 
         # initialize global state
-        self.imageDir = ''
+        self.imageDir = dir_imgs
         self.imageList= []
         self.egDir = ''
         self.egList = []
-        self.outDir = ''
+        self.outDir = dir_out
+        self.yoloOut = dir_yolo_out
         self.xmlOutDir =''
         self.cur = 0
         self.total = 0
@@ -381,13 +382,14 @@ class LabelTool():
     #-----------------------Function For Load Directory--------------------------------
     def loadDir(self, dbg=False):
         self.imageList = []
-        if not dbg:
-            self.parent.focus()
-            s = str(filedialog.askdirectory(initialdir=os.getcwd())).split('/')[-1]
-            self.category = s
-        else:
-            s = r'D:\workspace\python\labelGUI'
-        self.imageDir = os.path.join(r'./Images', '%s' % (self.category))
+        # if not dbg:
+        #     self.parent.focus()
+        #     s = str(filedialog.askdirectory(initialdir=os.getcwd())).split('/')[-1]
+        #     self.category = s
+        # else:
+        #     s = r'D:\workspace\python\labelGUI'
+        self.category = 'Sample'
+        # self.imageDir = os.path.join(r'./Images', '%s' % (self.category))
         for ext in ('*.png', '*.jpg'):
             self.imageList.extend(glob.glob(os.path.join(self.imageDir, ext)))
         if len(self.imageList) == 0:
@@ -396,7 +398,8 @@ class LabelTool():
             return
         self.cur = 1
         self.total = len(self.imageList)
-        self.outDir = os.path.join(r'./Result', '%s' % (self.category))
+        # self.outDir = os.path.join(r'./Result', '%s' % (self.category))
+        os.makedirs(self.outDir, exist_ok=True)
         if not os.path.exists(self.outDir):
             os.mkdir(self.outDir)
         self.loadImage() #Call Function to load the image
@@ -404,14 +407,7 @@ class LabelTool():
         messagebox.showinfo("Info", "%d images loaded from %s" % (self.total, self.category))
     #----------------------------------------------------------------------------------------
 
-    #--------------------Function to load Image From Directory--------------------------------
-    def remove_substring(self,original_string):
-        substring_to_remove = '.jpg'
-        if substring_to_remove in original_string:
-            modified_string = original_string.replace(substring_to_remove, '')
-            return modified_string
-        else:
-            return original_string    
+    #--------------------Function to load Image From Directory-------------------------------- 
 
     def loadImage(self):
         
@@ -461,10 +457,12 @@ class LabelTool():
         # Update progress label and clear bounding boxes
         self.progLabel.config(text="%04d/%04d" % (self.cur, self.total))
         self.clearBBox()
+        import re
 
         # Set the image name and label file name
         self.imagename = os.path.split(imagepath)[-1]
-        labelname = self.remove_substring(self.imagename) + '.txt'
+        labelname = re.split('.jpg|.png|.JPG|.jpeg|.JPEG',self.imagename)[0] + '.txt'
+        print(f'+++{labelname}+++')
         self.labelfilename = os.path.join(self.outDir, labelname)   
 
         # Update the reference to mainPanel
@@ -810,13 +808,22 @@ class LabelTool():
         if (self.category == ''):
             messagebox.showinfo("Error", "Please Annotate Image first")
         else:
-            outpath = "./Result_YOLO/" + self.category +'/'
-            convert.Convert2Yolo(self.outDir+'/', outpath, self.category, self.cla_can_temp)
+            # outpath = "./Result_YOLO/" + self.category +'/'
+            os.makedirs(self.yoloOut, exist_ok=True)
+            convert.Convert2Yolo(self.outDir+'/', self.yoloOut, self.category, self.cla_can_temp, self.imageDir)
             messagebox.showinfo("Info", "YOLO data format conversion done")
     #--------------------------------------------------------------------------------------------------------------------------------
-
-if __name__ == '__main__':
+            
+def run_annotator(img_dir, out_dir, yolo_out_dir):
     root = Tk()
-    tool = LabelTool(root)
+    tool = LabelTool(root, img_dir, out_dir, yolo_out_dir)
     root.resizable(width =  True, height = True)
     root.mainloop()
+
+run_annotator('./Images/Sample/', './Result/Sample/', './Result_YOLO/Sample/')
+
+# if __name__ == '__main__':
+#     root = Tk()
+#     tool = LabelTool(root)
+#     root.resizable(width =  True, height = True)
+#     root.mainloop()
