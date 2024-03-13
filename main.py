@@ -27,7 +27,7 @@ def load_config(file_path):
             return config
 
 class LabelTool():
-    def __init__(self, master, dir_imgs, dir_out, dir_yolo_out,image_extention):
+    def __init__(self, master, dir_imgs, dir_out, dir_yolo_out):
         # set up the main frame
         self.parent = master
         self.parent.title("Yolo Annotator")
@@ -47,7 +47,6 @@ class LabelTool():
         self.egList = []
         self.outDir = dir_out
         self.yoloOut = dir_yolo_out
-        self.image_extention = image_extention
         self.xmlOutDir =''
         self.cur = 0
         self.total = 0
@@ -414,10 +413,11 @@ class LabelTool():
         #     s = r'D:\workspace\python\labelGUI'
         self.category = 'Sample'
         # self.imageDir = os.path.join(r'./Images', '%s' % (self.category))
-        for ext in self.image_extention:
-            self.imageList.extend(glob.glob(os.path.join(self.imageDir, '*' + ext)))
-        if not self.imageList:
-            messagebox.showinfo("Error", "No images found in the specified directory with the specified extensions!")
+        for ext in ('*.png', '*.jpg'):
+            self.imageList.extend(glob.glob(os.path.join(self.imageDir, ext)))
+        if len(self.imageList) == 0:
+            messagebox.showinfo("Error", "No JPG/PNG images found in the specified dir!")
+            print('No JPG/PNG images found in the specified dir!')
             return
         self.cur = 1
         self.total = len(self.imageList)
@@ -502,7 +502,7 @@ class LabelTool():
         # Set the image name and label file name
         self.imagename = os.path.split(imagepath)[-1]
         labelname = re.split('.jpg|.png|.JPG|.jpeg|.JPEG',self.imagename)[0] + '.txt'
-        # print(f'+++{labelname}+++')
+        print(f'+++{labelname}+++')
         self.labelfilename = os.path.join(self.outDir, labelname)   
 
         # Update the reference to mainPanel
@@ -862,41 +862,16 @@ class LabelTool():
             messagebox.showinfo("Info", "YOLO data format conversion done")
     #--------------------------------------------------------------------------------------------------------------------------------
             
-
-    
-            
-# def run_annotator(img_dir, out_dir, yolo_out_dir):
-#     root = Tk()
-#     tool = LabelTool(root, img_dir, out_dir, yolo_out_dir)
-#     root.resizable(width =  True, height = True)
-
-    # def on_closing():
-    #     brand_directories_update_method()
-    #     yolo_pretrain_func()
-    #     check_negative()
-        
-    #     window.destroy()
-
-    # root.protocol("WM_DELETE_WINDOW", on_closing)
-    # root.mainloop()
-
-# run_annotator('./Images/Sample/', './Result/Sample/', './Result_YOLO/Sample/')
-            
- #----------config yamal load ---------
-    
-
-if __name__ == '__main__':
-   
-
-    config = load_config('config.yaml')
-
-    img_dir = config['Input_dir']
-    out_dir = config['Output_dir']
-    yolo_out_dir = config['yolo_output_dir']
-    image_extention = config['image_extensions']
-
-
+def run_annotator(img_dir, out_dir, yolo_out_dir):
     root = Tk()
-    tool = LabelTool(root,img_dir,out_dir,yolo_out_dir,image_extention)
+    tool = LabelTool(root, img_dir, out_dir, yolo_out_dir)
     root.resizable(width =  True, height = True)
     root.mainloop()
+
+run_annotator('./Images/Sample/', './Result/Sample/', './Result_YOLO/Sample/')
+
+# if __name__ == '__main__':
+#     root = Tk()
+#     tool = LabelTool(root)
+#     root.resizable(width =  True, height = True)
+#     root.mainloop()

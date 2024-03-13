@@ -26,8 +26,8 @@ def search_img(search_string, dir_path):
 
 def Convert2Yolo(mypath, outpath, project, classes, imageDir):
     wd = getcwd()
-    # print(f'===={wd}====')
-    # list_file = open('%s/log/%s_list.txt'%(wd, project), 'w')
+    print(f'===={wd}====')
+    list_file = open('%s/log/%s_list.txt'%(wd, project), 'w')
     
     """ Get input text file list """
     txt_name_list = []
@@ -76,22 +76,18 @@ def Convert2Yolo(mypath, outpath, project, classes, imageDir):
                 if cls not in classes:
                     exit(0)
                 cls_id = classes.index(cls)
-                # print(elems[0])
-                # print('Text name : ', txt_name)
+                print(elems[0])
+                print('Text name : ', txt_name)
                 # img_path = str('%s/Images/%s/%s'%(wd, project, os.path.splitext(txt_name)[0])+'.jpg')
-                # img_path = os.path.join(imageDir, search_img(os.path.splitext(txt_name)[0],imageDir))
-                # destination_path = os.path.join(outpath, search_img(os.path.splitext(txt_name)[0],imageDir))
-                # print('Image path:  ',img_path)
-                # with open(img_path, 'rb') as source_file:
-                #     with open(destination_path, 'wb') as destination_file:
-                #         destination_file.write(source_file.read())
+                img_path = os.path.join (imageDir, search_img(os.path.splitext(txt_name)[0],imageDir))
+                print('Image path:  ',img_path)
                 #t = magic.from_file(img_path)
                 #wh= re.search('(\d+) x (\d+)', t).groups()
                 im=Image.open(img_path)
                 w= int(im.size[0])
                 h= int(im.size[1])
-                # print(w, h)
-                # print(float(xmin), float(xmax), float(ymin), float(ymax))
+                print(w, h)
+                print(float(xmin), float(xmax), float(ymin), float(ymax))
                 b = (float(xmin), float(xmax), float(ymin), float(ymax))
                 bb = convert((w,h), b)
                 # print(bb)
